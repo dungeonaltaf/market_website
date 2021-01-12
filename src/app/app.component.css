@@ -1,0 +1,5 @@
+@import "../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css";
+main {
+  width: 80%;
+  margin: 1rem auto;
+}

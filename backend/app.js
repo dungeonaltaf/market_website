@@ -1,6 +1,7 @@
 "use strict";
 
 const express = require('express');
+const path = require('path');
 const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -16,6 +17,7 @@ mongoose.connect("mongodb+srv://altaf_hussain:mZMmOXzWQq0jhBrQ@cluster0.u1tdy.mo
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
+app.use("/",express.static(path.join(__dirname,"angular")))
 app.use((req,res,next)=>{
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers","Origin,X-Requested-With, Content-Type, Accept, multipart/form-data");
@@ -33,4 +35,7 @@ app.get("/api/posts",(req,res,next) => {
   });
 });
 app.use("/api/post",postsRoutes);
+app.use((req,res,next) =>{
+  res.sendFile(path.join(__dirname,"angular","index.html"))
+})
 module.exports = app;

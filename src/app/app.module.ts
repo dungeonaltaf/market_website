@@ -7,11 +7,16 @@ import {MatButtonModule} from '@angular/material/button';
 import { MatCardModule } from "@angular/material/card";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import {  MatExpansionModule} from "@angular/material/expansion";
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { AppComponent } from './app.component';
 import { PostComponent } from './posts/post.component';
 import { PostCreateComponent } from "./posts/post-create/post-create.component";
 import { HeaderComponent } from './header/header.component';
 import { PostListComponent } from "./posts/post-list/post-list.component";
+import { HttpClientModule } from "@angular/common/http";
+import { AppRoutingModule } from './app-routing.module';
+import { PostIndexComponent } from './posts/post-index/post-index.component';
+import { ReactiveFormsModule } from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -19,17 +24,21 @@ import { PostListComponent } from "./posts/post-list/post-list.component";
     PostComponent,
     PostCreateComponent,
     HeaderComponent,
-    PostListComponent
+    PostListComponent,
+    PostIndexComponent
   ],
   imports: [
     BrowserModule,
-    FormsModule,
+    AppRoutingModule,
     BrowserAnimationsModule,
     MatInputModule,
     MatButtonModule,
     MatCardModule,
     MatToolbarModule,
-    MatExpansionModule
+    MatExpansionModule,
+    HttpClientModule,
+    MatProgressSpinnerModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

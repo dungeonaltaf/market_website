@@ -1,1 +1,16 @@
 @import "../../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css";
+
+
+a {
+  text-decoration: none;
+  color: white;
+}
+ul{
+  list-style: none;
+  display: inherit;
+
+}
+li {
+  padding: 1rem;
+  margin: 1rem;
+}

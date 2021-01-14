@@ -14,3 +14,16 @@ mat-spinner{
 input[type="file"]{
   visibility: hidden;;
 }
+.image-preview{
+  height:20rem;
+  margin: 2rem ;
+}
+
+.image-box {
+  height: 15rem;
+  margin: 1.5rem;
+}
+.image-box img{
+  display: inline-table;
+  height: 5rem;
+}

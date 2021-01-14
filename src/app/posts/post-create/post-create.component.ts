@@ -3,6 +3,7 @@ import { Post} from '../post.model'
 import {  FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostsService } from "../posts.service";
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { mimeType } from './mime-type.validator';
 @Component({
   selector:'app-post-create',
   templateUrl:'./post-create.component.html',
@@ -17,6 +18,7 @@ export class PostCreateComponent implements OnInit{
   private mode = 'create';
   isLoading = false;
   form:FormGroup;
+  imagePreviews = [];
   private postId: string ;
   post: Post;
 
@@ -29,14 +31,13 @@ export class PostCreateComponent implements OnInit{
       content: new FormControl(null,{
         validators: [Validators.required]
       }),
-      price: new FormControl(null,{validators: [Validators.required, Validators.min(0)]} )
+      price: new FormControl(null,{validators: [Validators.required, Validators.min(0)]}),
+      images : new FormControl(null,{validators:[]})
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) =>{
       this.mode = 'create';
-      console.log("Bhai bhai");
       this.postId = null;
       if(paramMap.has('postId')){
-        console.log("inside  edit")
         this.mode = 'edit';
         this.postId = paramMap.get('postId');
         this.isLoading = true;
@@ -54,14 +55,48 @@ export class PostCreateComponent implements OnInit{
     });
 
   }
+
+
+  onImagePicked(event: Event){
+    const files = (event.target as HTMLInputElement).files;
+    let fileArray = Array.from(files);
+    if (files === undefined){
+      return;
+    }
+    for (let file of fileArray){
+      // this.form.patchValue({images:file});
+      this.form.get('images').updateValueAndValidity;
+      let reader = new FileReader;
+      reader.onload = () => {
+        this.imagePreviews.push(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+
+
+
+    // if ((event.target as HTMLInputElement).files){
+    //   for (let i=0;i<(event.target as HTMLInputElement).files.length;i++){
+    //     var reader = new FileReader();
+    //     reader.readAsDataURL((event.target as HTMLInputElement).files[i]);
+    //     reader.onload=(events:any)=>{
+    //       this.imagePreviews.push(events.target.result);
+    //     }
+    //   }
+    // }
+
+  }
   onSavePost(){
-    console.log("om Saved called!")
+    console.log("on Saved called!")
     if (this.form.invalid){
+      console.log("form is invalid what to do ?!")
       return;
     }
     this.isLoading=true;
     if (this.mode==='create'){
-      this.postService.addPosts(this.form.value.title,this.form.value.content,this.form.value.price);
+      console.log("inside create form function title:"+this.form.value.title);
+      console.log("inside create form function"+this.form.value.images);
+      this.postService.addPosts(this.form.value.title,this.form.value.content,this.form.value.price, this.form.value.images);
     }
     else{
       this.postService.updatePost(this.postId,this.form.value.title,this.form.value.content,this.form.value.price);

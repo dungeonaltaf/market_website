@@ -1,6 +1,6 @@
 import { Component , EventEmitter , Output, OnInit } from "@angular/core";
 import { Post} from '../post.model'
-import {  FormGroup, FormControl, Validators } from '@angular/forms';
+import {  FormGroup, FormControl, Validators, NG_ASYNC_VALIDATORS } from '@angular/forms';
 import { PostsService } from "../posts.service";
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { mimeType } from './mime-type.validator';
@@ -32,7 +32,7 @@ export class PostCreateComponent implements OnInit{
         validators: [Validators.required]
       }),
       price: new FormControl(null,{validators: [Validators.required, Validators.min(0)]}),
-      images : new FormControl(null,{validators:[]})
+      images : new FormControl(null,{validators:[Validators.required],asyncValidators:[mimeType]})
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) =>{
       this.mode = 'create';
@@ -46,7 +46,8 @@ export class PostCreateComponent implements OnInit{
           this.post = {id:postData._id,title:postData.title,
               content:postData.content,
               comments:postData.comments,
-              price:postData.price};
+              price:postData.price,
+              imagePath: null};
           this.form.setValue({'title':this.post.title,
           'content': this.post.content,
           'price':this.post.price});
@@ -58,23 +59,22 @@ export class PostCreateComponent implements OnInit{
 
 
   onImagePicked(event: Event){
-    const files = (event.target as HTMLInputElement).files;
-    let fileArray = Array.from(files);
-    if (files === undefined){
-      return;
-    }
-    for (let file of fileArray){
-      // this.form.patchValue({images:file});
-      this.form.get('images').updateValueAndValidity;
+    const files = (event.target as HTMLInputElement).files[0];
+    this.form.patchValue({images:files})
+    this.form.get('images').updateValueAndValidity;
+    // let fileArray = Array.from(files);
+    // if (files === undefined){
+    //   return;
+    // }
+    // for (let file of fileArray){
+    //   // this.form.patchValue({images:file});
+
       let reader = new FileReader;
       reader.onload = () => {
         this.imagePreviews.push(reader.result as string);
       };
-      reader.readAsDataURL(file);
-    }
-
-
-
+      reader.readAsDataURL(files);
+    // }
     // if ((event.target as HTMLInputElement).files){
     //   for (let i=0;i<(event.target as HTMLInputElement).files.length;i++){
     //     var reader = new FileReader();

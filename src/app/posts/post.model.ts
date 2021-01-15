@@ -3,5 +3,6 @@ export interface Post {
   title: string;
   content: string;
   price: number;
+  imagePath: string,
   comments: Array<{comment:string,commentator:string}>;
 }

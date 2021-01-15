@@ -10,7 +10,7 @@ export const mimeType = (
   }
   const files = control.value as File;
   const fileReader = new FileReader();
-  for (let i =0; i < File.length; i++){
+  // for (let i =0; i < File.length; i++){
     const frObs = Observable.create(
       (observer: Observer<{ [key: string]: any }>) => {
         fileReader.addEventListener("loadend", () => {
@@ -42,9 +42,9 @@ export const mimeType = (
           }
           observer.complete();
         });
-        fileReader.readAsArrayBuffer(files[i]);
+        fileReader.readAsArrayBuffer(files);
       }
     );
     return frObs;
-  }
+  // }
 };

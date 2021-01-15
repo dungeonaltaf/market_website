@@ -22,7 +22,9 @@ export class PostsService{
         return {
           title : post.title,
           content : post.content,
-          id: post._id
+          id: post._id,
+          price: post.price,
+          imagePath: post.imagePath
         }
       });
     }))
@@ -45,24 +47,26 @@ export class PostsService{
     postData.append("title",title);
     postData.append("content",content);
     postData.append("price",price.toString());
+    postData.append("images",images);
 
-    for (let i =0; i < File.length; i++){
-      console.log("count:"+i);
-      console.log("images"+images[i]);
-      postData.append("images[]",images[i]);
-    }
+    // for (let i =0; i < File.length; i++){
+    //   console.log("count:"+i);
+    //   console.log("images"+images[i]);
+    //   postData.append("images[]",images[i]);
+    // }
 
     console.log("postData guys!"+postData.getAll('images[]'));
     console.log("postData guys!"+postData.get('images[]'));
-    this.http.post<{messsage: string, postId: string}>(this.create_address,postData).subscribe(responseData => {
+    this.http.post<{messsage: string, post: Post}>(this.create_address,postData).subscribe(responseData => {
       const post: Post={
-        id:responseData.postId,
+        id:responseData.post.id,
         title:title,
         content:content,
         price: price,
-        comments:null
+        comments:null,
+        imagePath:responseData.post.imagePath
       }
-      const id = responseData.postId;
+      const id = responseData.post.id;
       post.id = id;
       this.posts.push(post);
 
@@ -72,7 +76,7 @@ export class PostsService{
   }
 
   updatePost(id: string, title: string, price: number, content: string){
-    const post: Post = {id: id,title:title,content:content, price: price, comments:null};
+    const post: Post = {id: id,title:title,content:content, price: price, imagePath: null  , comments:null};
     this.http.put<{messsage: string, postId: string}>(this.create_address+id,post).subscribe(responseData=>{
       const updatedPosts = [...this.posts];
       const oldPostIndex = updatedPosts.findIndex(p=>p.id===post.id);

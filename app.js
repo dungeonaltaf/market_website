@@ -36,6 +36,8 @@ app.get("/api/posts",(req,res,next) => {
 });
 app.use("/api/post",postsRoutes);
 app.use((req,res,next) =>{
-  res.sendFile(path.join(__dirname,"angular","index.html"))
+  return res.status(200).json({
+    message: "altaf we made it"
+  });
 })
 module.exports = app;

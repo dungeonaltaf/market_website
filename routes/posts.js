@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
       if (isValid){
         error = null;
       }
-      cb(error,"backend/images");
+      cb(error,"images");
     },
     filename: (req,file,cb) => {
       const name = file.originalname.toLowerCase().split(' ').join('-');
@@ -34,17 +34,26 @@ const storage = multer.diskStorage({
 
 
 
-router.post("",multer({ storage: storage }).array("images[]", 10),(req,res,next)=> {
+router.post("",multer({ storage: storage }).single("images"),(req,res,next)=> {
+
+  const url = req.protocol + '://' + req.get("host");
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    price: req.body.price
+    price: req.body.price,
+    imagePath: url + "/images/" + req.file.filename
   });
   post.save().then((savedPost)=>{
     console.log(post);
     return res.status(201).json({
     message: "Post added successfully!",
-    postId: savedPost._id
+    post:{
+      id: savedPost._id,
+      title: savedPost.title,
+      content: savedPost.content,
+      imagePath: savedPost.imagePath
+    }
+
   });
   });
 });

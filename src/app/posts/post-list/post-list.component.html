@@ -1,18 +1,23 @@
 <mat-spinner *ngIf = "isLoading"></mat-spinner>
-<mat-accordion *ngIf="posts.length>0 && !isLoading" >
-  <mat-expansion-panel class="card-panel" *ngFor="let post of posts">
-    <mat-expansion-panel-header>
+<div *ngIf="posts.length>0 && !isLoading" >
+  <mat-card class="card-panel" *ngFor="let post of posts">
+    <mat-card-title>
       {{post.title}}
-    </mat-expansion-panel-header>
-    <div class="post-image">
-      <img [src]="post.imagePath" [alt]="post.title">
-    </div>
-    <p> {{post.content}}</p>
-    <p> Price: {{post.price}} </p>
+    </mat-card-title>
+    <mat-card-subtitle> Price: {{post.price}} </mat-card-subtitle>
+    <div class="post-image"></div>
+      <img mat-card-image [src]="post.imagePath" [alt]="post.title">
+      <mat-card-content> {{post.content}}</mat-card-content>
     <mat-action-row>
       <a mat-button color="primary" [routerLink]="['/edit',post.id]">Edit</a>
       <button mat-button color="warn" (click)="onDelete(post.id)"> Delete </button>
     </mat-action-row>
-  </mat-expansion-panel>
-</mat-accordion>
+  </mat-card>
+</div >
+<mat-paginator  *ngIf="posts.length>0"
+[length]="totalPosts"
+[pageSize]="postsPerPage"
+[pageSizeOptions]= "pageSizeOptions"
+(page)="onChangedPage($event)"
+></mat-paginator>
 <p class="info-text mat-body-1" *ngIf="posts.length<=0 && !isLoading"> No Products added yet! </p>

@@ -6,6 +6,7 @@ import { Subject } from "rxjs";
 import { map } from "rxjs/operators";
 import { HttpClient } from "@angular/common/http";
 import { Router } from '@angular/router';
+import { Form } from '@angular/forms';
 
 @Injectable({
   providedIn:'root'
@@ -39,11 +40,10 @@ export class PostsService{
   }
 
   getPost(id: string){
-    return this.http.get<{_id: string,title: string,content: string, price: number, comments: Array<{comment:string,commentator:string}>}>(this.create_address+id);
+    return this.http.get<{_id: string,title: string,content: string, price: number, imagePath: string, comments: Array<{comment:string,commentator:string}>}>(this.create_address+id);
   }
   addPosts(title: string, content: string, price: number , images: File){
     const postData = new FormData();
-    console.log("price is"+price);
     postData.append("title",title);
     postData.append("content",content);
     postData.append("price",price.toString());
@@ -54,9 +54,6 @@ export class PostsService{
     //   console.log("images"+images[i]);
     //   postData.append("images[]",images[i]);
     // }
-
-    console.log("postData guys!"+postData.getAll('images[]'));
-    console.log("postData guys!"+postData.get('images[]'));
     this.http.post<{messsage: string, post: Post}>(this.create_address,postData).subscribe(responseData => {
       const post: Post={
         id:responseData.post.id,
@@ -75,11 +72,33 @@ export class PostsService{
     });
   }
 
-  updatePost(id: string, title: string, price: number, content: string){
-    const post: Post = {id: id,title:title,content:content, price: price, imagePath: null  , comments:null};
-    this.http.put<{messsage: string, postId: string}>(this.create_address+id,post).subscribe(responseData=>{
+  updatePost(id: string, title: string, content: string, price: number, images: File | string){
+    var postData: FormData | Post;
+    if (typeof(images)==='object'){
+      console.log("image updation has taken place!!");
+      postData = new FormData();
+      postData.append("title",title);
+      postData.append("price",price.toString());
+      postData.append("content",content);
+      postData.append("images",images,title);
+    }
+    else{
+      postData =  {id: id,title:title,content:content, price: price, imagePath: images  , comments:null};
+    }
+
+
+    console.log("post data:"+postData);
+    this.http.put<{messsage: string, postId: string, imagePath: string}>(this.create_address+id,postData).subscribe(responseData=>{
       const updatedPosts = [...this.posts];
-      const oldPostIndex = updatedPosts.findIndex(p=>p.id===post.id);
+      const oldPostIndex = updatedPosts.findIndex(p=>p.id===id);
+      const post : Post = {
+        id: id,
+        title:title,
+        content:content,
+        price: price,
+        imagePath: responseData.imagePath,
+        comments:null
+      }
       updatedPosts[oldPostIndex] = post;
       this.posts = updatedPosts;
       this.postUpdate.next([...this.posts]);

@@ -4,7 +4,6 @@ import { Observable, Observer, of } from "rxjs";
 export const mimeType = (
   control: AbstractControl
 ): Promise<{ [key: string]: any }> | Observable<{ [key: string]: any }> => {
-  console.log("dude i am in that validator shit of angular!")
   if (typeof(control.value) === 'string') {
     return of(null);
   }

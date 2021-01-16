@@ -31,6 +31,9 @@ export class PostCreateComponent implements OnInit{
       content: new FormControl(null,{
         validators: [Validators.required]
       }),
+      comments: new FormControl(null,{
+        validators: []
+      }),
       price: new FormControl(null,{validators: [Validators.required, Validators.min(0)]}),
       images : new FormControl(null,{validators:[Validators.required],asyncValidators:[mimeType]})
     });
@@ -47,10 +50,12 @@ export class PostCreateComponent implements OnInit{
               content:postData.content,
               comments:postData.comments,
               price:postData.price,
-              imagePath: null};
+              imagePath: postData.imagePath};
           this.form.setValue({'title':this.post.title,
           'content': this.post.content,
-          'price':this.post.price});
+          'price':this.post.price,
+          'comments': this.post.comments,
+          'images':this.post.imagePath});
         });
       }
     });
@@ -87,19 +92,20 @@ export class PostCreateComponent implements OnInit{
 
   }
   onSavePost(){
-    console.log("on Saved called!")
     if (this.form.invalid){
-      console.log("form is invalid what to do ?!")
       return;
     }
     this.isLoading=true;
+    let title = this.form.value.title;
+    let content = this.form.value.content;
+    let price = this.form.value.price;
+    let images = this.form.value.images;
+    let postId = this.postId;
     if (this.mode==='create'){
-      console.log("inside create form function title:"+this.form.value.title);
-      console.log("inside create form function"+this.form.value.images);
-      this.postService.addPosts(this.form.value.title,this.form.value.content,this.form.value.price, this.form.value.images);
+      this.postService.addPosts(title,content,price,images);
     }
     else{
-      this.postService.updatePost(this.postId,this.form.value.title,this.form.value.content,this.form.value.price);
+      this.postService.updatePost(postId,title,content,price,images);
     }
     this.form.reset();
   }

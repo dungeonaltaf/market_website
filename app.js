@@ -25,14 +25,31 @@ app.use((req,res,next)=>{
   next();
 });
 
+
 app.get("/api/posts",(req,res,next) => {
-  Post.find().then(documents=>{
-    console.log(documents);
-    return res.status(200).json({
-      message: "This is a response successful message",
-      posts: documents
+  console.log(req.query);
+  const pageSize = +req.query.pageSize;
+  const currentPage = +req.query.page;
+  console.log("pageSize:"+pageSize);
+  console.log("currentPage:"+(currentPage-1));
+  let fetchedDocuments;
+  const postQuery = Post.find();
+  if (pageSize && currentPage){
+    postQuery.skip(pageSize * (currentPage-1)).limit(pageSize);
+  }
+  postQuery.
+  then(documents=>{
+    fetchedDocuments = documents;
+    return Post.count();
+  }).
+  then(count=>{
+      res.status(200).json({
+        message: "This is a response successful message",
+        posts: fetchedDocuments,
+        maxPosts: count
+      });
     });
-  });
+  
 });
 app.use("/api/post",postsRoutes);
 app.use((req,res,next) =>{

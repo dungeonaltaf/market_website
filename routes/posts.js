@@ -58,15 +58,28 @@ router.post("",multer({ storage: storage }).single("images"),(req,res,next)=> {
   });
 });
 
-router.put("/:id",(req,res,next)=>{
+router.put("/:id",multer({ storage: storage }).single("images"),(req,res,next)=>{
+  let imagePath = req.body.imagePath;
+  
+  
+  if (req.file){
+    const url = req.protocol + "://" + req.get("host");
+    imagePath = url + "/images/" + req.file.filename;
+  }
+
+
+  console.log("image_path:"+imagePath);
+  console.log("title:"+req.body.title);
   const post = new Post({
     _id: req.params.id,
     title: req.body.title,
-    content: req.body.content
+    content: req.body.content,
+    price: req.body.price,
+    imagePath: imagePath
   });
   console.log("performing edit");
   console.log(req.params.id);
-  console.log("post:"+post);
+  console.log("+++++++++++++post+++++++++++++++++++:"+post);
   Post.updateOne({_id: req.params.id},post).then(result => {
     console.log(result);
     console.log("Post:");

@@ -13,7 +13,8 @@ module.exports = (req,res,next)=>{
   console.log("user data is as follows:"+req.userData.email+"\n"+req.userData.userId+"\n"+req.userData.firstName+"\n"+req.secondName+"\n"+req.phone);
   next();
   }
+
   catch(err){
-    res.status(401).json({message:" Token Auth Failed!"})
+    res.status(401).json({message:" Token Authorization Failed!"})
   }
 }

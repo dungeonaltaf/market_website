@@ -29,13 +29,15 @@ router.post("/signup", (req,res,next)=>{
     }).catch(err => {
       console.log("bhai dikkat hi dikkat he zindagi me"+err);
       res.status(500).json({
-        error: err
+        message: "Invalid Authentication credentials!"
       })
     })
   });
 
 });
 
+
+// if there is wrong login info this fails!!
 router.post("/login",(req,res,next)=>{
   let fetchedUser;
   console.log("email:"+req.body.email);
@@ -43,28 +45,29 @@ router.post("/login",(req,res,next)=>{
     if(!user){
       console.log("User not found!")
       return res.status(401).json({
-        message: 'Authorization Failed!',
-        reason: "User not found!"
+        message: 'Incorrect Email!'
       });
     }
-    console.log("found user!!!");
-    fetchedUser = user;
-    return bcrypt.compare(req.body.password,user.password);
+    else{
+      console.log("found user!!!");
+      fetchedUser = user;
+      return bcrypt.compare(req.body.password,user.password);
+    }
   }).then(result =>{
     if (!result){
       console.log("password didn't matched!")
      return  res.status(401).json({
-        message: 'Authorization Failed!',
-        reason: "Password incorrect!"
+        message: 'Password Incorrect'
       });
     }
+    console.log("somehow the error flows to this section!!!");
     const token = jwt.sign({email: fetchedUser.email,
       userId: fetchedUser._id,
       firstName: fetchedUser.firstName,
       secondName:fetchedUser.secondName,
       phone:fetchedUser.phone},
       'secret_this_should_be_longer',{expiresIn:"1h"});
-      res.status(200).json({
+      return res.status(200).json({
         token: token,
         expiresIn: 3600
       })
@@ -72,8 +75,7 @@ router.post("/login",(req,res,next)=>{
   }).catch(err =>{
     console.log("error is"+err);
     return res.status(401).json({
-      message: 'Authorization Failed!',
-      error: err
+      message: 'Authorization Failed! Invalid Credentials',
     });
 
   })

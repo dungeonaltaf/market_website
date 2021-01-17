@@ -57,6 +57,10 @@ router.get("",(req,res,next) => {
         posts: fetchedDocuments,
         maxPosts: count
       });
+    }).catch(error =>{
+      res.status(500).json({
+        message: "Post fetched failed. Contact admin!"
+      })
     });
   
 });
@@ -84,12 +88,16 @@ check_auth,
     return Post.count();
   }).
   then(count=>{
-      res.status(200).json({
+      return res.status(200).json({
         message: "This is a response successful message",
         posts: fetchedDocuments,
         maxPosts: count
       });
-    });
+    }).catch(error =>{
+      res.status(500).json({
+        message: "Not able to fecth post.Contact admin!"
+      })
+    })
   
 });
 
@@ -127,9 +135,12 @@ router.post("",
         phone: req.userData.phone
       }
     }
-
-  });
-  });
+    });
+  }).catch(error=> {
+    res.status(500).json({
+      message: 'Product Creation Failed. Try again!'
+    })
+  })
 });
 
 router.put("/:id",
@@ -164,10 +175,19 @@ router.put("/:id",
   }}).then(result => {
     console.log(result);
     console.log("Post:");
+    if (result.nModified>0){
     res.status(200).json(
       {message: 'Update successful!',
       postId: req.body.id
       });
+    }
+    else{
+      res.status(401).json({message: "Not authorized!1"});
+    } 
+  }).catch(error=>{
+    res.status(500).json({
+      message: "Post wasn't updated.Try again!"
+    })
   })
 });
 
@@ -191,9 +211,12 @@ router.get("/:id",(req,res,next) => {
     else{
       console.log("couldn't find the document!")
       res.status(404).json({message:'post not found!'});
-
     }
-  });
+  }).catch(error=>{
+    res.status(500).json({
+      message: "Unable to fetch post!"
+    })
+  })
 });
 
 router.delete("/:id",
@@ -208,7 +231,11 @@ check_auth,
       return res.status(200).json({
         message: "Post deleted!"
       });
-    });
+    }).catch(error =>{
+      res.status(500).json({
+        message: "Deletion failed!"
+      })
+    })
   }
   else{
     console.log("request for id"+id);
@@ -221,6 +248,7 @@ router.post("/comment",
 check_auth,
 (req,res,next)=>{
   let id = req.body.id;
+
 
   Post.findById(id).then(post=>{
     if (!post){
@@ -243,7 +271,11 @@ check_auth,
       message: "Comment added successfully!"
     });
     
-  })
+  }).catch(error=>{
+    res.status(500).json({
+      message: "Couldn't added comment!"
+    });
+  });
 });
 
 

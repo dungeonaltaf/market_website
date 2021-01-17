@@ -7,7 +7,9 @@ import { map } from "rxjs/operators";
 import { HttpClient } from "@angular/common/http";
 import { Router } from '@angular/router';
 import { Form } from '@angular/forms';
+import {environment} from "../../environments/environment";
 
+const BACKEND_URL = environment.apiUrl + "/posts"
 @Injectable({
   providedIn:'root'
 })
@@ -16,15 +18,16 @@ export class PostsService{
   private posts: Post[] = [];
   private postUpdate = new Subject<{posts:Post[], postCount:number}>();
   fetch_address = "http://localhost:3000/api/posts/";
-  create_address = "http://localhost:3000/api/post/";
+  create_address = "http://localhost:3000/api/posts/";
   getPosts(postsPerPage:number,currentPage:number){
     const queryParams = `?pageSize=${postsPerPage}&page=${currentPage}`
-    console.log("pagePerSize"+postsPerPage);
-    console.log("page"+currentPage);
-    this.http.get<{message:string, posts: any, maxPosts: number}>(this.fetch_address+queryParams).pipe(map((postData)=>{
+    // console.log("pagePerSize"+postsPerPage);
+    // console.log("page"+currentPage);
+    this.http.get<{message:string, posts: any, maxPosts: number}>(BACKEND_URL+"/"+queryParams).pipe(map((postData)=>{
 
 
-      console.log("postData"+postData.message)
+      // console.log("postData"+postData.message);
+      // console.log("posts are"+postData.posts[0].author.firstName);
       return{
       posts: postData.posts.map(post=>{
         return {
@@ -33,6 +36,44 @@ export class PostsService{
           id: post._id,
           price: post.price,
           imagePath: post.imagePath,
+          author_phone: post.author.phone,
+          author_name: post.author.firstName,
+          comments: post.comments
+        };
+      }),
+        maxPosts: postData.maxPosts
+    };
+
+    }))
+    .subscribe((transformed_postData)=>{
+      this.posts = transformed_postData.posts;
+      this.postUpdate.next({posts:[...this.posts],postCount:transformed_postData.maxPosts});
+    });
+  }
+
+
+
+
+  getUserPosts(postsPerPage:number,currentPage:number){
+    const queryParams = `?pageSize=${postsPerPage}&page=${currentPage}`
+    // console.log("pagePerSize"+postsPerPage);
+    // console.log("page"+currentPage);
+    this.http.get<{message:string, posts: any, maxPosts: number}>(BACKEND_URL+"/user"+queryParams).pipe(map((postData)=>{
+
+
+      // console.log("postData"+postData.message);
+      // console.log("posts are"+postData.posts[0].author.firstName);
+      return{
+      posts: postData.posts.map(post=>{
+        return {
+          title : post.title,
+          content : post.content,
+          id: post._id,
+          price: post.price,
+          imagePath: post.imagePath,
+          author_phone: post.author.phone,
+          author_name: post.author.firstName,
+          comments: post.comments
         };
       }),
         maxPosts: postData.maxPosts
@@ -50,7 +91,13 @@ export class PostsService{
   }
 
   getPost(id: string){
-    return this.http.get<{_id: string,title: string,content: string, price: number, imagePath: string, comments: Array<{comment:string,commentator:string}>}>(this.create_address+id);
+    return this.http.get<{_id: string,
+      title: string,
+      content: string,
+      price: number,
+      imagePath: string,
+      author: any,
+      comments: Array<{comment:string,commentator:string}>}>(BACKEND_URL+"/"+id);
   }
   addPosts(title: string, content: string, price: number , images: File){
     const postData = new FormData();
@@ -64,7 +111,7 @@ export class PostsService{
     //   console.log("images"+images[i]);
     //   postData.append("images[]",images[i]);
     // }
-    this.http.post<{messsage: string, post: Post}>(this.create_address,postData).subscribe(responseData => {
+    this.http.post<{messsage: string, post: Post}>(BACKEND_URL+"/",postData).subscribe(responseData => {
       this.router.navigate(["/"]);
     });
   }
@@ -72,7 +119,7 @@ export class PostsService{
   updatePost(id: string, title: string, content: string, price: number, images: File | string){
     var postData: FormData | Post;
     if (typeof(images)==='object'){
-      console.log("image updation has taken place!!");
+      // console.log("image updation has taken place!!");
       postData = new FormData();
       postData.append("title",title);
       postData.append("price",price.toString());
@@ -80,27 +127,30 @@ export class PostsService{
       postData.append("images",images,title);
     }
     else{
-      postData =  {id: id,title:title,content:content, price: price, imagePath: images  , comments:null};
+      postData =  {id: id,title:title,content:content, price: price, imagePath: images,author_name:null, author_phone:null, comments:null};
     }
 
 
-    console.log("post data:"+postData);
-    this.http.put<{messsage: string, postId: string, imagePath: string}>(this.create_address+id,postData).subscribe(responseData=>{
+    // console.log("post data:"+postData);
+    this.http.put<{messsage: string, postId: string, imagePath: string}>(BACKEND_URL+"/"+id,postData).subscribe(responseData=>{
       this.router.navigate(["/"]);
     });
   }
 
   deletePost(postId: string){
-    return this.http.delete(this.create_address+postId)
+    return this.http.delete(BACKEND_URL+"/"+postId)
 
   }
 
 
 
 
-  commentOnPost(postId: string, user_id: string, comment_content: string){
-    const comment = {user_id:user_id,comment:comment_content};
-    this.http.post<{messsage: string, postId: string}>(this.create_address+postId+'/comment/',comment).subscribe(responseData => {
+  commentOnPost(postId: string, comment_content: string){
+    var comment = {id:postId,comment:comment_content};
+    // console.log("console.log:"+this.create_address+'comment',comment);
+    this.http.post<{messsage: string, postId: string}>(BACKEND_URL+"/comment",comment).subscribe(responseData => {
+      // console.log("comment has been done!");
+      this.router.navigate(["/"]);
       const updatedPosts = this.posts.filter(post=>post.id==postId);
       // this.postUpdate.next([...this.posts]);
     });

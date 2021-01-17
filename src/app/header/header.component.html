@@ -1,13 +1,29 @@
 <mat-toolbar color="primary">
-  <span><a routerLink= "/">Your Products</a></span>
-  <ul>
+  <a routerLink= "/"> Find Products </a>
+
+
+  <ul *ngIf="userIsAuthenticated" >
+    <li >
+      <span><a routerLink="/index">  Your Products </a></span>
+    </li>
     <li>
       <a routerLink="/create"> Sell Products</a>
     </li>
-
     <li>
-      <a routerLink="/index"> Find Products</a>
+      <button mat-button (click)="onLogout()">Logout</button>
     </li>
-
   </ul>
+
+
+  <ul *ngIf="!userIsAuthenticated">
+    <li>
+      <a routerLink="/login"> Login</a>
+    </li>
+    <li>
+      <a routerLink="/signup"> SignUp</a>
+    </li>
+  </ul>
+
+
+
 </mat-toolbar>

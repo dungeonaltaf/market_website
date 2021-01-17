@@ -3,6 +3,8 @@ export interface Post {
   title: string;
   content: string;
   price: number;
-  imagePath: string,
+  imagePath: string;
   comments: Array<{comment:string,commentator:string}>;
+  author_name: string;
+  author_phone: string;
 }

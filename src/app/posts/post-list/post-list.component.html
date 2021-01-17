@@ -12,6 +12,12 @@
       <a mat-button color="primary" [routerLink]="['/edit',post.id]">Edit</a>
       <button mat-button color="warn" (click)="onDelete(post.id)"> Delete </button>
     </mat-action-row>
+
+
+    <div *ngFor="let comment of post.comments">
+       <p> {{comment.commentator}} </p>
+      <p> {{comment.comment}}</p>
+    </div>
   </mat-card>
 </div >
 <mat-paginator  *ngIf="posts.length>0"

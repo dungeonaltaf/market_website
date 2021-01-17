@@ -49,4 +49,4 @@
   [pageSizeOptions]= "pageSizeOptions"
   (page)="onChangedPage($event)"
   ></mat-paginator>
-<p class="info-text mat-body-1" *ngIf="posts.length<=0"> No Products in Market. Sorry!! </p>
+<p class="info-text mat-body-1" *ngIf="posts.length<=0 !isLoading"> No Products in Market. Sorry!! </p>

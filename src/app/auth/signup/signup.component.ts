@@ -1,6 +1,7 @@
-import {  Component} from "@angular/core";
+import {  Component, OnInit, OnDestroy} from "@angular/core";
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   templateUrl:'./signup.component.html',
@@ -8,14 +9,22 @@ import { AuthService } from '../auth.service';
   selector: 'app-post-signup'
 })
 
-export class SignupComponent{
+export class SignupComponent implements OnInit,OnDestroy{
   mobNumberPattern = "^((\\+91-?)|0)?[0-9]{10}$";
 
   isLoading = false;
+  private authStatusSub: Subscription;
+  constructor(public authService: AuthService){}
 
-  constructor(public authService: AuthService){
-
+  ngOnInit(){
+    this.authStatusSub = this.authService.getAuthStatusListener().subscribe(
+      authStatus =>{
+        this.isLoading = false;
+      }
+    );
   }
+
+
   onSignup(form : NgForm){
     if (form.invalid){
       // console.log("form is invalid!");
@@ -30,6 +39,11 @@ export class SignupComponent{
     this.isLoading = true;
     this.authService.createUser(email,password,phone,firstName,secondName);
     // console.log(form.value);
+  }
+
+
+  ngOnDestroy(){
+    this.authStatusSub.unsubscribe();
   }
 
 }

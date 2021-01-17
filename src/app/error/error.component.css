@@ -1,0 +1,15 @@
+.title{
+  color: red;
+  margin: 1rem;
+  text-align: center;
+}
+
+.content{
+  color: blue;
+  text-align: center;
+}
+
+.action{
+  margin: 1rem;
+  padding-left: 2.7rem;
+}

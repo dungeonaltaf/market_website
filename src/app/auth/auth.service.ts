@@ -20,10 +20,13 @@ export class AuthService{
 
   createUser(email:string,password:string,phone:number,firstName:string,secondName:string){
     const user :   User = {email: email, password:password,phone:phone,firstName:firstName,secondName:secondName}
-    this.http.post(BACKEND_URL+"/signup",user).subscribe(response => {
+    return this.http.post(BACKEND_URL+"/signup",user).subscribe(response => {
       // console.log("token:"+response);
       this.router.navigate(['/index']);
-    })
+    },error =>{
+      console.log(error);
+      this.authStatusListener.next(false);
+    });
   }
 
   getToken(){
@@ -58,6 +61,8 @@ export class AuthService{
         // console.log("local storgae expires on:"+expirationDate);
         this.router.navigate(['/index']);
       }
+    },error =>{
+      this.authStatusListener.next(false);
     });
 
   }

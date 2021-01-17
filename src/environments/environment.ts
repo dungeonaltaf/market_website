@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: "http://marketplace-env.eba-rcnb8bcb.ap-south-1.elasticbeanstalk.com/api"
+  apiUrl: "http://localhost:3000/api"
 };
 
 /*

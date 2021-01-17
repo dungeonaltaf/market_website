@@ -3,6 +3,9 @@ const router = express.Router();
 
 const Post = require('../models/post');
 const multer = require('multer');
+
+const check_auth = require("../middleware/check-auth");
+
 const MIME_TYPE_MAP = {
   'image/png': 'png',
   'image/jpeg':'jpg',
@@ -32,16 +35,82 @@ const storage = multer.diskStorage({
     }
 });
 
+router.get("",(req,res,next) => {
+  console.log(req.query);
+  const pageSize = +req.query.pageSize;
+  const currentPage = +req.query.page;
+  console.log("pageSize:"+pageSize);
+  console.log("currentPage:"+(currentPage-1));
+  let fetchedDocuments;
+  const postQuery = Post.find();
+  if (pageSize && currentPage){
+    postQuery.skip(pageSize * (currentPage-1)).limit(pageSize);
+  }
+  postQuery.
+  then(documents=>{
+    fetchedDocuments = documents;
+    return Post.count();
+  }).
+  then(count=>{
+      res.status(200).json({
+        message: "This is a response successful message",
+        posts: fetchedDocuments,
+        maxPosts: count
+      });
+    });
+  
+});
 
 
-router.post("",multer({ storage: storage }).single("images"),(req,res,next)=> {
+
+
+router.get("/user",
+check_auth,
+(req,res,next) => {
+  console.log(req.query);
+  const pageSize = +req.query.pageSize;
+  const currentPage = +req.query.page;
+  console.log("pageSize:"+pageSize);
+  console.log("currentPage:"+(currentPage-1));
+  let fetchedDocuments;
+  console.log("user id is:"+req.userData.userId);
+  const postQuery = Post.find({'author.id':req.userData.userId});
+  if (pageSize && currentPage){
+    postQuery.skip(pageSize * (currentPage-1)).limit(pageSize);
+  }
+  postQuery.
+  then(documents=>{
+    fetchedDocuments = documents;
+    return Post.count();
+  }).
+  then(count=>{
+      res.status(200).json({
+        message: "This is a response successful message",
+        posts: fetchedDocuments,
+        maxPosts: count
+      });
+    });
+  
+});
+
+router.post("",
+  check_auth,
+  multer({ storage: storage }).single("images"),
+  (req,res,next)=> {
 
   const url = req.protocol + '://' + req.get("host");
+  console.log("+++++++user data+++++++++"+req.userData.user_id);
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
     price: req.body.price,
-    imagePath: url + "/images/" + req.file.filename
+    imagePath: url + "/images/" + req.file.filename,
+    author: {id: req.userData.userId,
+      firstName: req.userData.firstName,
+      secondName: req.userData.secondName,
+      phone: req.userData.phone
+    }
+
   });
   post.save().then((savedPost)=>{
     console.log(post);
@@ -51,14 +120,22 @@ router.post("",multer({ storage: storage }).single("images"),(req,res,next)=> {
       id: savedPost._id,
       title: savedPost.title,
       content: savedPost.content,
-      imagePath: savedPost.imagePath
+      imagePath: savedPost.imagePath,
+      author: {id: req.userData.userId,
+        firstName: req.userData.firstName,
+        secondName: req.userData.secondName,
+        phone: req.userData.phone
+      }
     }
 
   });
   });
 });
 
-router.put("/:id",multer({ storage: storage }).single("images"),(req,res,next)=>{
+router.put("/:id",
+  check_auth,
+  multer({ storage: storage }).single("images"),
+  (req,res,next)=>{
   let imagePath = req.body.imagePath;
   
   
@@ -70,17 +147,21 @@ router.put("/:id",multer({ storage: storage }).single("images"),(req,res,next)=>
 
   console.log("image_path:"+imagePath);
   console.log("title:"+req.body.title);
-  const post = new Post({
-    _id: req.params.id,
+  const post ={
     title: req.body.title,
     content: req.body.content,
     price: req.body.price,
     imagePath: imagePath
-  });
+  };
   console.log("performing edit");
   console.log(req.params.id);
   console.log("+++++++++++++post+++++++++++++++++++:"+post);
-  Post.updateOne({_id: req.params.id},post).then(result => {
+  Post.updateOne({_id: req.params.id},{$set:{
+    title: req.body.title,
+    content: req.body.content,
+    price: req.body.price,
+    imagePath: imagePath
+  }}).then(result => {
     console.log(result);
     console.log("Post:");
     res.status(200).json(
@@ -115,7 +196,9 @@ router.get("/:id",(req,res,next) => {
   });
 });
 
-router.delete("/:id",(req,res,next)=>{
+router.delete("/:id",
+check_auth,
+(req,res,next)=>{
   var id = req.params.id
   if (id.match(/^[0-9a-fA-F]{24}$/)) {
     Post.deleteOne({
@@ -134,52 +217,31 @@ router.delete("/:id",(req,res,next)=>{
       });
   }
 });
-router.post("/:id/comment/",(req,res,next)=>{
-  var id = req.params.id
-  if (id.match(/^[0-9a-fA-F]{24}$/)) {
-    Post.findOne({},(err,post)=>{
-      if (err){
-        res.json({success:false,message:'Invalid post id'})
-      }
-      else{
-        if(!post){
-          res.json({success:false,message:'Post not found!'})
+router.post("/comment",
+check_auth,
+(req,res,next)=>{
+  let id = req.body.id;
+
+  Post.findById(id).then(post=>{
+    if (!post){
+      console.log("couldn't find the post!")
+      res.status(404).json({message:'post not found to comment!'});
+    }
+    let comment_content = req.body.comment;
+    let author = req.userData.firstName;
+    
+
+    return Post.update({_id: id},
+      {$push: {
+        comments:{
+            comment: comment_content,
+            commentator: author
+          }
         }
-        else{
-          User.findOne({_id:req.body.user_id,},(err,user)=>{
-            if(err){
-              res.json({success:false,message: 'Invalid user id!'});
-            }
-            else{
-              if (!user){
-                res.json({success:false,message:'User not found'})
-              }
-              else{
-                post.comments.push({
-                  comment: req.body.comment,
-                  commentator: user.username
-                })
-                post.save((err)=>{
-                  if (err){
-                  res.json({success:true,message:'Something went wrong'});
-                  }
-                  else{
-                    res.json({success:true,message:'Comment Saved!'})
-                  }
-                });
-              }
-            }
-          });
-        }
-      }
-    });
-  }
-  else{
-    console.log("request for id"+id);
-    return res.status(200).json({
-      message: "Post didn't existed!"
-    });
-  }
+      });
+  }).then(updatdPost => {
+    console.log(updatdPost);
+  })
 });
 
 

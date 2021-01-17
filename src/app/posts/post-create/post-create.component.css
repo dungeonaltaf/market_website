@@ -15,15 +15,15 @@ input[type="file"]{
   visibility: hidden;;
 }
 .image-preview{
-  height:20rem;
+  height:30rem;
   margin: 2rem ;
 }
 
 .image-box {
-  height: 15rem;
+  height: 30rem;
   margin: 1.5rem;
 }
 .image-box img{
   display: inline-table;
-  height: 5rem;
+  height: 30rem;
 }

@@ -149,9 +149,11 @@ export class PostsService{
     var comment = {id:postId,comment:comment_content};
     // console.log("console.log:"+this.create_address+'comment',comment);
     this.http.post<{messsage: string, postId: string}>(BACKEND_URL+"/comment",comment).subscribe(responseData => {
-      // console.log("comment has been done!");
+      console.log("comment has been done!");
+      this.router.routeReuseStrategy.shouldReuseRoute = function () {
+        return false;
+      };
       this.router.navigate(["/"]);
-      const updatedPosts = this.posts.filter(post=>post.id==postId);
       // this.postUpdate.next([...this.posts]);
     });
   }

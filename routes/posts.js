@@ -229,8 +229,6 @@ check_auth,
     }
     let comment_content = req.body.comment;
     let author = req.userData.firstName;
-    
-
     return Post.update({_id: id},
       {$push: {
         comments:{
@@ -241,6 +239,10 @@ check_auth,
       });
   }).then(updatdPost => {
     console.log(updatdPost);
+    return res.status(200).json({
+      message: "Comment added successfully!"
+    });
+    
   })
 });
 

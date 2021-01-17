@@ -8,6 +8,9 @@
 .card-panel{
   height: 30%;
   width: 33%;
+  margin-left: 10px;
+  min-width: 200px;
+  display: inline-flex;
 }
 .info-text{
   text-align:center;

@@ -17,8 +17,6 @@ export class PostsService{
   constructor(private http: HttpClient, private router: Router){}
   private posts: Post[] = [];
   private postUpdate = new Subject<{posts:Post[], postCount:number}>();
-  fetch_address = "http://localhost:3000/api/posts/";
-  create_address = "http://localhost:3000/api/posts/";
   getPosts(postsPerPage:number,currentPage:number){
     const queryParams = `?pageSize=${postsPerPage}&page=${currentPage}`
     // console.log("pagePerSize"+postsPerPage);
@@ -147,7 +145,6 @@ export class PostsService{
 
   commentOnPost(postId: string, comment_content: string){
     var comment = {id:postId,comment:comment_content};
-    // console.log("console.log:"+this.create_address+'comment',comment);
     this.http.post<{messsage: string, postId: string}>(BACKEND_URL+"/comment",comment).subscribe(responseData => {
       console.log("comment has been done!");
       this.router.routeReuseStrategy.shouldReuseRoute = function () {

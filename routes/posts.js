@@ -18,9 +18,8 @@ const storage = multer.diskStorage({
     destination: (req,file,cb)=>{
       const isValid = MIME_TYPE_MAP[file.mimetype];
       let error = new Error("Invalid Mime Type");
-      console.log("inside destination");
-      console.log("is valid?"+isValid);
-      console.log(file.mimetype);
+      // console.log("is valid?"+isValid);
+      // console.log(file.mimetype);
       if (isValid){
         error = null;
       }
@@ -29,7 +28,6 @@ const storage = multer.diskStorage({
     filename: (req,file,cb) => {
       const name = file.originalname.toLowerCase().split(' ').join('-');
       const ext = MIME_TYPE_MAP[file.mimetype];
-      console.log("insde filename!");
       cb(null, name+ '-' + Date.now()+ '.'+ext);
 
     }
@@ -107,7 +105,6 @@ router.post("",
   (req,res,next)=> {
 
   const url = req.protocol + '://' + req.get("host");
-  console.log("+++++++user data+++++++++"+req.userData.user_id);
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
@@ -156,25 +153,24 @@ router.put("/:id",
   }
 
 
-  console.log("image_path:"+imagePath);
-  console.log("title:"+req.body.title);
+  // console.log("image_path:"+imagePath);
+  // console.log("title:"+req.body.title);
   const post ={
     title: req.body.title,
     content: req.body.content,
     price: req.body.price,
     imagePath: imagePath
   };
-  console.log("performing edit");
-  console.log(req.params.id);
-  console.log("+++++++++++++post+++++++++++++++++++:"+post);
+  // console.log(req.params.id);
+  // console.log("+++++++++++++post+++++++++++++++++++:"+post);
   Post.updateOne({_id: req.params.id},{$set:{
     title: req.body.title,
     content: req.body.content,
     price: req.body.price,
     imagePath: imagePath
   }}).then(result => {
-    console.log(result);
-    console.log("Post:");
+    // console.log(result);
+    // console.log("Post:");
     if (result.nModified>0){
     res.status(200).json(
       {message: 'Update successful!',
@@ -193,7 +189,7 @@ router.put("/:id",
 
 router.get("s",(req,res,next) => {
   Post.find().then(documents=>{
-    console.log(documents);
+    // console.log(documents);
     return res.status(200).json({
       message: "This is a response successful message",
       posts: documents
@@ -202,14 +198,13 @@ router.get("s",(req,res,next) => {
 });
 
 router.get("/:id",(req,res,next) => {
-  console.log("Iam here!")
+  // console.log("Iam here!")
   Post.findById(req.params.id).then(document=>{
     if (document){
-      console.log(document);
+      // console.log(document);
       return res.status(200).json(document);
     }
     else{
-      console.log("couldn't find the document!")
       res.status(404).json({message:'post not found!'});
     }
   }).catch(error=>{
@@ -252,7 +247,6 @@ check_auth,
 
   Post.findById(id).then(post=>{
     if (!post){
-      console.log("couldn't find the post!")
       res.status(404).json({message:'post not found to comment!'});
     }
     let comment_content = req.body.comment;

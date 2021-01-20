@@ -10,7 +10,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 
 In branch angular_part run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-In branch node_part run `npm run start:server` for a dev server. Navifate t0 `http://localhost:3000/`. The server will automatically
+In branch node_part run `npm run start:server` for a dev server. Navifate to `http://localhost:3000/`. The server will automatically
 reload if you change any of the source files. 
 
 
